@@ -9,7 +9,7 @@ from liquichange.element import LiquibaseElement
 
 
 class Condition(LiquibaseElement):
-    """for type hinting various precondition entities"""
+    """For type hinting various precondition entities."""
 
     subelements: None = None
 
@@ -17,14 +17,39 @@ class Condition(LiquibaseElement):
 @dataclass
 class Preconditions(LiquibaseElement):
     """
-    Container class for preconditions used to group Preconditions
-    that have the same conditional logic.
+    Container class for preconditions used to group Preconditions and/or
+    Condition objects that follow the same conditional_logic.
 
-    If Precondtions has other Preconditions as subelements, will
+    Preconditions are tags you add to your changelog or individual changesets
+    to control the execution of an update based on the state of the database.
+
+    Use by adding any Preconditions or Condition type objects to the subelements list.
+
+    Attributes:
+        conditional_logic (Logic): AND or OR. Default AND.
+        on_error (Action): Controls what happens if there is an error checking
+            whether the precondition passed or not.
+        on_error_message (str): rovides a custom message to output when preconditions fail.
+        on_fail (Action): Controls what happens if the preconditions check fails.
+        on_fail_message (str): Provides a custom message to output when preconditions fail.
+        on_sql_output (SqlAction): Controls how preconditions are evaluated in the
+            update-sql mode for XML, YAML, and JSON changelogs.
+        on_update_sql (SqlAction): Controls how preconditions are evaluated in the
+            update-sql mode for formatted SQL changelogs.
+
+    Class Variables:
+        Action (Enum): The Action enum.
+        SqlAction (Enum): The SqlAction enum.
+        Logic (Enum): The Logic enum.
+
+    Methods:
+        to_xml(_is_changelog: bool = False) -> ET.Element: Returns the XML representation
+            of the element. Overrides the LiquibaseElement method to incorporate conditional
+            logic of preconditions.
     """
 
     class Action(str, Enum):
-        """values for precondition types: onFail, onError"""
+        """Values for precondition types: onFail, onError."""
 
         CONTINUE = "CONTINUE"
         HALT = "HALT"
@@ -32,14 +57,14 @@ class Preconditions(LiquibaseElement):
         WARN = "WARN"
 
     class SqlAction(str, Enum):
-        """values for precondition types: onSqlOutput, onUpdateSql"""
+        """Values for precondition types: onSqlOutput, onUpdateSql."""
 
         FAIL = "FAIL"
         IGNORE = "IGNORE"
         TEST = "TEST"
 
     class Logic(str, Enum):
-        """values for precondition conditional logic"""
+        """Values for precondition conditional logic."""
 
         AND = "and"
         OR = "or"
@@ -96,7 +121,7 @@ class DbmsPrecondition(Condition):
 @dataclass
 class VersionPrecondition(Condition):
     """
-    asserts the expected Neo4j version
+    Asserts the expected Neo4j version
 
     matches: expected Neo4j version as a string in the format:
         "major.minor.patch"

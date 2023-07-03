@@ -12,6 +12,23 @@ class LiquibaseElement:
     """
     Base Liquibase class for elements such as Changelog, Changeset,
     Preconditions, Comment, and Rollback.
+
+    Attributes:
+        subelements (List[LiquibaseElement]): A list of sub-elements.
+        _tag (str): The tag name of the element.
+        text (str): The text content of the element.
+
+    Class Variables:
+        NAMESPACE (str): The XML namespace for the Liquibase elements.
+        XSI_NAMESPACE (str): The XML namespace for the XML Schema Instance.
+        NEO4J_NAMESPACE (str): The XML namespace for Neo4j extensions.
+        SCHEMA_LOCATION (str): The location of the XML schema.
+
+    Methods:
+        tag() -> str: Returns the tag name of the element.
+        get_attrs() -> Dict[str, str]: Returns the element attributes as a dictionary.
+        to_xml(_is_changelog: bool = False) -> ET.Element: Returns the XML representation
+            of the element.
     """
 
     subelements: List["LiquibaseElement"] = field(default_factory=list)
