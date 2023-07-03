@@ -11,29 +11,22 @@ from liquichange.precondition import DbmsPrecondition, Preconditions
 
 
 class ObjectQuotingStrategy(str, Enum):
-    """values for objectQuotingStrategy attr"""
+    """Values for objectQuotingStrategy attr."""
 
     LEGACY = "LEGACY"
     QUOTE_ALL_OBJECTS = "QUOTE_ALL_OBJECTS"
     QUOTE_ONLY_RESERVED_WORDS = "QUOTE_ONLY_RESERVED_WORDS"
 
 
-class BooleanEnum(str, Enum):
-    """values for fields that can be 'true' or 'false'"""
-
-    TRUE = "true"
-    FALSE = "false"
-
-
 class RunOrder(str, Enum):
-    """values for run orders"""
+    """Values for run orders."""
 
     FIRST = "first"
     LAST = "last"
 
 
 class ChangeType(LiquibaseElement):
-    """for type hinting various change type entities"""
+    """For type hinting various change type entities"""
 
 
 @dataclass
@@ -45,7 +38,14 @@ class CypherChange(ChangeType):
 
 @dataclass
 class Rollback(LiquibaseElement):
-    """rollback statement for change types that don't auto-create them"""
+    """
+    Rollback statement for change types that don't auto-create them.
+
+    Attributes:
+        change_set_id (str): The ID of the changeset to rollback.
+        change_set_author (str): The author of the changeset to rollback.
+        change_type (ChangeType): The change type to rollback. Required.
+    """
 
     change_set_id: Optional[str] = None
     change_set_author: Optional[str] = None
@@ -62,14 +62,32 @@ class Rollback(LiquibaseElement):
 
 @dataclass
 class Comment(LiquibaseElement):
-    """liquibase comment"""
+    """Comment in Liquibase changelog."""
 
     _tag: str = "comment"
 
 
 @dataclass
 class Property(LiquibaseElement):
-    """liquibase property"""
+    """
+    property tag in Liquibase changelog.
+
+    Used in changelog to substitute values for replacement tokens in the format of ${property-name}.
+
+    Attributes:
+        name (str): The name of the parameter. Required if file is not set.
+        value (str): The value of the property. Required if file is not set.
+        file (str): The name of the file from which the properties should be loaded.
+            It will create a property for all properties in the file.
+            The content of the file must follow the Java properties file format.
+            Required if name and value not set.
+        relative_to_changelog_file (str): used in conjunction with the file attribute
+            to allow Liquibase to find the referenced file without having to configure search-path.
+        context (str): Contexts in which the property is valid. Expected as a comma-separated list.
+        dbms (DbmsPrecondition.DbmsType): Specifies which database type(s) a changeset is
+            to be used for.
+        global_ (bool): Whether the property is global or limited to the actual DATABASECHANGELOG.
+    """
 
     name: Union[str, None] = field(default=None, metadata={"required": True})
     value: Union[str, None] = field(default=None, metadata={"required": True})
@@ -100,7 +118,18 @@ class Property(LiquibaseElement):
 
 @dataclass
 class Include(LiquibaseElement):
-    """liquibase include element"""
+    """
+    include tag in Liquibase changelog.
+
+    Use the include tag in the root changelog to reference other changelogs.
+
+    Attributes:
+        file (str): Name of the file you want to import required. Required.
+        relative_to_changelog_file (bool): Specifies whether the file path is relative to the
+            changelog file rather than looked up in the search path.
+        context_filter (str): Appends a context (using AND statement) to all contained changesets.
+        labels (str): Appends a label (using an AND statement) to all contained changesets.
+    """
 
     file: Union[str, None] = field(default=None, metadata={"required": True})
     relative_to_changelog_file: Optional[bool] = None
@@ -113,7 +142,18 @@ class Include(LiquibaseElement):
 
 @dataclass
 class IncludeAll(LiquibaseElement):
-    """liquibase include element"""
+    """
+    includeAll tag in Liquibase changelog.
+
+    Use the includeAll tag to specify a directory that contains multiple changelog files.
+
+    Attributes:
+        file (str): Name of the file you want to import required. Required.
+        relative_to_changelog_file (bool): Specifies whether the file path is relative to the changelog
+            file rather than looked up in the search path.
+        context_filter (str): Appends a context (using an AND statement) to all contained changesets.
+        labels (str): Appends a label (using an AND statement) to all contained changesets.
+    """
 
     path: Union[str, None] = field(default=None, metadata={"required": True})
     error_if_missing_or_empty: Optional[bool] = None
@@ -129,7 +169,39 @@ class IncludeAll(LiquibaseElement):
 @dataclass
 class Changeset(LiquibaseElement):
     """
-    One unit of change in liquibase changelog
+    changeSet tag in Liquibase changelog.
+
+    Basic unit of change in Liquibase. Changesets are stored in a Changelog.
+    Best practice is to specify only one type of change per changeset.
+    Nested elements (in subelements list) may include Comment, Preconditions, & Rollback.
+
+    Attributes:
+        id (str): Specifies an alpha-numeric identifier. Required.
+        author (str): Specifies the creator of the changeset. Required.
+        change_type (ChangeType): The type of change (neo4j:cypher, etc.). Required.
+        dbms (str): Specifies which database type(s) a changeset is to be used for.
+        context_filter (str): Specifies the changeset contexts to match.
+        created (str): Stores dates, versions, or any other string of value without using
+            remarks (comments) attributes.
+        labels (str): Specifies the changeset labels to match.
+        logical_file_path (str): Overrides the file name and path when creating the
+            unique identifier of changesets.
+        run_order (RunOrder): The order in which the changeset should run relative to
+            other changesets.
+        fail_on_error (bool): Defines whether a database migration will fail if an error occurs
+            while executing the changeset.
+        ignore (bool): Tells Liquibase to treat a particular changeset as if it does not exist.
+        object_quoting_strategy (ObjectQuotingStrategy): Controls how object names are quoted in
+            the SQL files generated by Liquibase and used in calls to the database.
+        run_always (bool): Executes the changeset on every run, even if it has been run before.
+        run_in_transaction (bool): Specifies whether the changeset can be run as
+            a single transaction (if possible).
+        run_on_change (bool): Executes the changeset when you create it and each time it changes.
+
+    Methods:
+        add_preconditions(precondition): Adds a precondition to the changeSet.
+        set_rollback(rollback): Sets the rollback statement for the changeSet.
+        set_comment(comment): Sets a comment for the changeSet.
     """
 
     id: Union[str, None] = field(default=None, metadata={"required": True})
@@ -169,7 +241,7 @@ class Changeset(LiquibaseElement):
             self.subelements.append(self.change_type)
 
     def add_preconditions(self, precondition: Preconditions):
-        """adds a precondition to the changeSet"""
+        """Adds a precondition to the changeSet."""
         precondition_ele = next(
             (e for e in self.subelements if isinstance(e, Preconditions)), None
         )
@@ -179,17 +251,38 @@ class Changeset(LiquibaseElement):
             precondition_ele.subelements.append(precondition)
 
     def set_rollback(self, rollback: Rollback):
-        """sets the rollback statement for the changeSet"""
+        """Sets the rollback statement for the changeSet."""
         self.subelements.append(rollback)
 
     def set_comment(self, comment: Comment):
-        """sets a comment for the changeSet"""
+        """Sets a comment for the changeSet."""
         self.subelements.append(comment)
 
 
 @dataclass
 class Changelog(LiquibaseElement):
-    """liquibase changelog"""
+    """
+    changeSet tag in Liquibase changelog.
+
+    Sequential list of changes to be made to database, with individual units of change
+    contained in changesets. Currently supports changelogs in XML format.
+
+    Nested elements (in subelements list) may include Preconditions, Changesets, Include, &
+    IncludeAll.
+
+    Attributes:
+        logical_file_path(str): Overrides the file name and path when creating the unique
+            identifier of changesets.
+        object_quoting_strategy: Controls how object names are quoted in the SQL files generated
+            by Liquibase and used in calls to the database.
+
+    Methods:
+        add_changeset(changeset): Adds a changeset to the changelog by appending to its
+            subelement list.
+        to_xml(_is_changelog: bool = True) -> ET.Element: Returns the XML representation
+            of the element. Overrides the LiquibaseElement method.
+        save_to_file(file_path): Writes changelog to xml file at file_path.
+    """
 
     logical_file_path: Optional[str] = None
     object_quoting_strategy: Optional[ObjectQuotingStrategy] = None
@@ -199,12 +292,16 @@ class Changelog(LiquibaseElement):
         Union[Optional[Preconditions], Property, Changeset, Include, IncludeAll]
     ] = field(default_factory=list)
 
+    def add_changeset(self, changeset: Changeset):
+        """Adds a changeset to the changelog by appending to its subelement list."""
+        self.subelements.append(changeset)
+
     def to_xml(self, _is_changelog: bool = True) -> ET.Element:
         """Returns ET.Element representation of Changelog."""
         return super().to_xml(_is_changelog=_is_changelog)
 
     def save_to_file(self, file_path: str, encoding: Optional[str] = None):
-        """writes changelog to xml file"""
+        """Writes changelog to xml file at file_path."""
         with open(file_path, "wb") as file:
             xml_element_tree = ET.ElementTree(self.to_xml())
             ET.indent(xml_element_tree)
