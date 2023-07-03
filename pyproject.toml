@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "liquichange"
-version = "0.1.0"
+version = "0.2.1"
 description = "Build and modify Liquibase changelogs in Python."
 authors = ["Nelson Moore <nelson.moore@essential-soft.com>"]
 readme = "README.md"

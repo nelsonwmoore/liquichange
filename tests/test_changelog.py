@@ -20,6 +20,18 @@ def test_changeset_set_comment():
     """test changeset set_comment method"""
 
 
+def test_changeset_add_changelog():
+    """test changeset add_changeset method"""
+    changelog = Changelog()
+    changeset = Changeset(
+        id="1",
+        author="William Gibson",
+        change_type=CypherChange(text="MERGE (:Book {title: 'Neuromancer'})"),
+    )
+    changelog.add_changeset(changeset)
+    assert changelog.subelements == [changeset]
+
+
 def test_changelog_to_xml():
     """test changeset to_xml method"""
     changelog = Changelog()
@@ -45,6 +57,4 @@ def test_changelog_to_xml():
     changelog.subelements = [changeset]
     xml_changelog = changelog.to_xml()
 
-    print(tostring(xml_changelog))
-    print(expected_xml_str)
     assert tostring(xml_changelog) == expected_xml_str
