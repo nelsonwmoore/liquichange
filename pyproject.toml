@@ -25,7 +25,7 @@ description = "Build and modify Liquibase changelogs in Python."
 authors = ["Nelson Moore <nelson.moore@essential-soft.com>"]
 license = "Apache-2.0"
 readme = "README.md"
-packages = [{ include = "liquichange" }]
+packages = [{ include = "liquichange", from="src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
