@@ -6,11 +6,12 @@ authors = [{ name = "Nelson Moore", email = "nelson.moore@essential-soft.com" }]
 readme = "README.md"
 license = { text = "Apache 2.0" }
 requires-python = ">=3.8"
-dependencies = []
+dependencies = [
+    "pytest>=8.3.5",
+]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.2.2",
     "pytest-cov>=4.0.0",
     "myst-nb>=0.17.1",
     "sphinx-autoapi>=2.1.0",
