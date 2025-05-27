@@ -9,5 +9,5 @@ jobs:
         workdir: .
         versions: |
           ["3.10","3.11","3.12","3.13"]
-        pkg_name: bento-meta
+        pkg_name: liquichange
       secrets: inherit
