@@ -1,0 +1,13 @@
+name: ci-cd
+
+on: [push, pull_request]
+
+jobs:
+    ci-cd:
+      uses: CBIIT/bento-workflows/.github/workflows/ci-cd.yml@24a75ede6370fcdf8a4792e53f17607138e127db
+      with:
+        workdir: .
+        versions: |
+          ["3.10","3.11","3.12","3.13"]
+        pkg_name: bento-meta
+      secrets: inherit
