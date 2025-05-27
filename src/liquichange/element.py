@@ -1,17 +1,19 @@
-"""
-Liquibase Element
-"""
+"""LiquibaseElement: base class for Liquibase changelog elements."""
+
+from __future__ import annotations
+
 import xml.etree.ElementTree as ET
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import ClassVar, Dict, List, Set
+from typing import ClassVar
 
 
 @dataclass
 class LiquibaseElement:
     """
-    Base Liquibase class for elements such as Changelog, Changeset,
-    Preconditions, Comment, and Rollback.
+    Base Liquibase class for liquibase changelog elements.
+
+    Includes Changelog, Changeset, Preconditions, Comment, and Rollback.
 
     Attributes:
         subelements (List[LiquibaseElement]): A list of sub-elements.
@@ -27,11 +29,11 @@ class LiquibaseElement:
     Methods:
         tag() -> str: Returns the tag name of the element.
         get_attrs() -> Dict[str, str]: Returns the element attributes as a dictionary.
-        to_xml(_is_changelog: bool = False) -> ET.Element: Returns the XML representation
+        to_xml(_is_changelog: bool = False) -> ET.Element: Return the XML representation
             of the element.
     """
 
-    subelements: List["LiquibaseElement"] = field(default_factory=list)
+    subelements: list[LiquibaseElement] = field(default_factory=list)
     _tag: str = ""
     text: str = ""
 
@@ -40,7 +42,7 @@ class LiquibaseElement:
     NEO4J_NAMESPACE: ClassVar[str] = "http://www.liquibase.org/xml/ns/dbchangelog-ext"
     SCHEMA_LOCATION: ClassVar[str] = f"{NAMESPACE} {NAMESPACE}/dbchangelog-latest.xsd"
 
-    COMMON_EXCLUDED_ATTRS: ClassVar[Set[str]] = {
+    COMMON_EXCLUDED_ATTRS: ClassVar[set[str]] = {
         "subelements",
         "_tag",
         "text",
@@ -51,17 +53,17 @@ class LiquibaseElement:
         "_excluded_attrs",
     }
 
-    _excluded_attrs: Set[str] = field(
-        default_factory=lambda: set(LiquibaseElement.COMMON_EXCLUDED_ATTRS)
+    _excluded_attrs: set[str] = field(
+        default_factory=lambda: set(LiquibaseElement.COMMON_EXCLUDED_ATTRS),
     )
 
     @property
     def tag(self) -> str:
-        """LiquibaseElement.tag getter"""
+        """LiquibaseElement.tag getter."""
         return self._tag
 
-    def get_attrs(self) -> Dict[str, str]:
-        """returns liquibase element attrs as a dict"""
+    def get_attrs(self) -> dict[str, str]:
+        """Return liquibase element attrs as a dict."""
         return {
             snake_to_camel(attr): str(val.value)
             if isinstance(val, Enum)
@@ -73,11 +75,11 @@ class LiquibaseElement:
         }
 
     @classmethod
-    def _merge_excluded_attrs(cls, child_excluded_attrs: Set[str]) -> Set[str]:
+    def _merge_excluded_attrs(cls, child_excluded_attrs: set[str]) -> set[str]:
         return cls.COMMON_EXCLUDED_ATTRS.union(child_excluded_attrs)
 
-    def to_xml(self, _is_changelog: bool = False) -> ET.Element:
-        """Returns ET.ElementTree representation of element."""
+    def to_xml(self, *, _is_changelog: bool = False) -> ET.Element:
+        """Return ET.ElementTree representation of element."""
         root = ET.Element(self.tag)
         if _is_changelog:
             root.attrib.update(
@@ -86,7 +88,7 @@ class LiquibaseElement:
                     "xmlns:xsi": self.XSI_NAMESPACE,
                     "xmlns:neo4j": self.NEO4J_NAMESPACE,
                     "xsi:schemaLocation": self.SCHEMA_LOCATION,
-                }
+                },
             )
         root.text = self.text
         root.attrib.update(self.get_attrs())
@@ -96,7 +98,7 @@ class LiquibaseElement:
 
 
 def snake_to_camel(snake_str: str) -> str:
-    """converts string from snake case to camel case"""
+    """Convert string from snake case to camel case."""
     components = snake_str.split("_")
     components = [c for c in components if c]
     return components[0] + "".join(x.title() for x in components[1:])

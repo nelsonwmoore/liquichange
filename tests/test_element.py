@@ -1,11 +1,13 @@
-"""Tests for liquichange element.py"""
+"""Tests for liquichange element.py."""
+
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Set
 
 from liquichange.element import LiquibaseElement, snake_to_camel
 
 
-def test_tag():
+def test_tag() -> None:
     """Test tag property returns the correct tag name."""
     element_1 = LiquibaseElement()
     assert element_1.tag == ""
@@ -14,19 +16,19 @@ def test_tag():
     assert element_2.tag == "testTag"
 
 
-def test_get_attrs():
+def test_get_attrs() -> None:
     """Test get_attrs() method returns the correct dictionary of attributes."""
 
     @dataclass
     class TestElement(LiquibaseElement):
-        """Test Element"""
+        """Test Element."""
 
         include_int: int = 15
         include_bool: bool = True
         include_str: str = field(default="", metadata={"required": True})
         exclude_str: str = field(default="", metadata={"required": True})
         exclude_none: None = None
-        _excluded_attrs: Set[str] = field(
+        _excluded_attrs: set[str] = field(
             default_factory=lambda: {
                 "exclude_str",
                 "exclude_none",
@@ -38,7 +40,7 @@ def test_get_attrs():
                 "NEO4J_NAMESPACE",
                 "SCHEMA_LOCATION",
                 "_excluded_attrs",
-            }
+            },
         )
 
     element = TestElement(include_str="included", exclude_str="excluded")
@@ -51,12 +53,12 @@ def test_get_attrs():
     assert attrs == expected_attrs
 
 
-def test_to_xml():
-    """Test to_xml method of LiquibaseElement"""
+def test_to_xml() -> None:
+    """Test to_xml method of LiquibaseElement."""
 
     @dataclass
     class TestElement(LiquibaseElement):
-        """Test Element"""
+        """Test Element."""
 
         _tag: str = "testTag"
         text: str = "test text"
@@ -70,12 +72,12 @@ def test_to_xml():
     assert xml_element.attrib == expected_attrs
 
 
-def test_to_xml_nested():
-    """Test to_xml method of LiquibaseElement with subelements"""
+def test_to_xml_nested() -> None:
+    """Test to_xml method of LiquibaseElement with subelements."""
 
     @dataclass
     class ChildElement(LiquibaseElement):
-        """Test Child Element"""
+        """Test Child Element."""
 
         _tag: str = "childTag"
         text: str = "test child text"
@@ -83,7 +85,7 @@ def test_to_xml_nested():
 
     @dataclass
     class ParentElement(LiquibaseElement):
-        """Test Parent Element (Changelog)"""
+        """Test Parent Element (Changelog)."""
 
         _tag: str = "parentTag"
         text: str = "test parent text"
@@ -109,8 +111,8 @@ def test_to_xml_nested():
         assert xml_child.attrib == expected_child_attrs
 
 
-def test_snake_to_camel():
-    """tests conversion of snake to camel case"""
+def test_snake_to_camel() -> None:
+    """Tests conversion of snake to camel case."""
     assert snake_to_camel("test_attr") == "testAttr"
     assert snake_to_camel("_test_attr") == "testAttr"
     assert snake_to_camel("test_attr_") == "testAttr"

@@ -1,4 +1,7 @@
-"""Tests for liquichange precondition.py"""
+"""Tests for liquichange precondition.py."""
+
+from __future__ import annotations
+
 from xml.etree.ElementTree import tostring
 
 from liquichange.precondition import (
@@ -9,11 +12,11 @@ from liquichange.precondition import (
 )
 
 
-def test_to_xml_nested_conditions():
-    """Test to_xml method of Preconditions"""
-
+def test_to_xml_nested_conditions() -> None:
+    """Test to_xml method of Preconditions."""
     preconditions = Preconditions(
-        on_fail=Preconditions.Action.WARN, on_fail_message="Epic Fail"
+        on_fail=Preconditions.Action.WARN,
+        on_fail_message="Epic Fail",
     )
     condition_1 = EditionPrecondition(community=True)
     condition_2 = VersionPrecondition(matches="1.2.3")
@@ -29,9 +32,8 @@ def test_to_xml_nested_conditions():
     assert tostring(xml_preconditions) == expected_xml_str
 
 
-def test_to_xml_nested_preconditions():
-    """Test to_xml method of LiquibaseElement with subelements"""
-
+def test_to_xml_nested_preconditions() -> None:
+    """Test to_xml method of LiquibaseElement with subelements."""
     parent_preconditions = Preconditions(on_fail=Preconditions.Action.CONTINUE)
     child_preconditions = Preconditions(conditional_logic=Preconditions.Logic.OR)
     child_condition = CypherCheckPrecondition(
